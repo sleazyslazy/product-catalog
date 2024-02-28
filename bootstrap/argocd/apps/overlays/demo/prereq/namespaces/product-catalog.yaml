@@ -1,0 +1,13 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: product-catalog-dev
+  labels:
+    argocd.argoproj.io/managed-by: application-gitops
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: product-catalog-test
+  labels:
+    argocd.argoproj.io/managed-by: application-gitops

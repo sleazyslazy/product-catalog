@@ -2,3 +2,4 @@
 .vscode
 optional
 charts
+environments/overlays/cicd/github-secret.yaml

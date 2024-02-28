@@ -6,61 +6,35 @@ spec:
   workspaces:
     - name: git-source
     - name: gitops-manifests
-    - name: slack-secret
-      optional: true
-    - name: acs-central
-      optional: true
   params:
     - name: source_git_revision
       type: string
       default: master
     - name: source_git_url
       type: string
-      default: https://github.com/gnunn-gitops/product-catalog-client
+      default: https://github.com/sleazyslazy/product-catalog-client
     - name: gitops_git_revision
       type: string
       default: main
     - name: gitops_git_url
       type: string
-      default: https://github.com/gnunn-gitops/product-catalog
+      default: https://github.com/sleazyslazy/product-catalog
     - name: image_dest_url
       type: string
       description: External registry location to copy image to
-      default: quay.io/gnunn/client
+      default: quay.io/suchugh/product-catalog
     - name: cluster
       type: string
       description: Cluster to push to
-      default: "local.home"
+      default: "dev"
     - name: sonarqube_host
-      default: sonarqube-dev-tools.apps.hub.ocplab.com
+      default: sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
       description: Where sonarqube is located to support project scanning
   tasks:
-    - name: acquire-lease
-      taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/acquire-lease/1.0/acquire-lease.yaml
-        resolver: git
-      params:
-        - name: lease-name
-          value: "$(context.pipeline.name)"
-        - name: owner
-          value: "$(context.pipelineRun.name)"
-    - name: variables
-      taskRef:
-        name: variables-from-k8s
-      runAfter:
-        - acquire-lease
-      workspaces:
-        - name: acs-central
-          workspace: acs-central
     - name: clone
       taskRef:
         name: git-clone
         kind: ClusterTask
-      runAfter:
-        - variables
       workspaces:
         - name: output
           workspace: git-source
@@ -71,13 +45,24 @@ spec:
           value: "$(params.source_git_revision)"
         - name: deleteExisting
           value: "true"
+    - name: clone-gitops-manifests
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: gitops-manifests
+      params:
+        - name: url
+          value: "$(params.gitops_git_url)"
+        - name: revision
+          value: "$(params.gitops_git_revision)"
+        - name: deleteExisting
+          value: "true"      
     - name: generate-id
       taskRef:
         kind: Task
-        params:
-          - name: pathInRepo
-            value: task/generate-build-id/1.0/generate-build-id.yaml
-        resolver: git
+        name: generate-build-id
       runAfter:
         - clone
       workspaces:
@@ -115,64 +100,6 @@ spec:
         value: $(params.image_dest_url):latest
       - name: DOCKERFILE
         value: ./Containerfile
-    - name: acs-scan-image
-      taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/acs-image-scan/1.0/acs-image-scan.yaml
-        resolver: git
-      runAfter:
-        - build-image
-      params:
-        - name: output_format
-          value: table
-        - name: image
-          value: $(params.image_dest_url)@$(tasks.build-image.results.IMAGE_DIGEST)
-      when:
-        - input: "$(workspaces.acs-central.bound)"
-          operator: in
-          values: ["true"]
-      workspaces:
-        - name: acs-central
-          workspace: acs-central
-    - name: acs-check-image
-      taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/acs-image-check/1.0/acs-image-check.yaml
-        resolver: git
-      runAfter:
-        - acs-scan-image
-      params:
-        - name: image
-          value: quay.io/gnunn/client@$(tasks.build-image.results.IMAGE_DIGEST)
-      when:
-        - input: "$(workspaces.acs-central.bound)"
-          operator: in
-          values: ["true"]
-      workspaces:
-        - name: acs-central
-          workspace: acs-central
-    - name: notify-on-scan-fail
-      taskRef:
-        name: send-to-webhook-slack
-        kind: Task
-      runAfter:
-        - acs-check-image
-      when:
-        - input: "$(tasks.acs-check-image.results.check_passed)"
-          operator: in
-          values: ["false"]
-      params:
-        - name: message
-          value: |-
-           *Client Image Scan Failed*
-           The image scan for client:$(tasks.generate-id.results.tag_id) failed, please view test results here: https://acs_central_host/main/vulnerability-management/images/$(tasks.build-image.results.IMAGE_DIGEST)
-      workspaces:
-        - name: slack-secret
-          workspace: slack-secret
     - name: tag-dev-image
       taskRef:
         name: push-image
@@ -186,32 +113,18 @@ spec:
           value: $(params.image_dest_url)
         - name: dest_tags
           value: $(tasks.generate-id.results.tag_id),dev
-    - name: clone-gitops-manifests
-      taskRef:
-        name: git-clone
-        kind: ClusterTask
-      runAfter:
-        - tag-dev-image
-      workspaces:
-        - name: output
-          workspace: gitops-manifests
-      params:
-        - name: url
-          value: "$(params.gitops_git_url)"
-        - name: revision
-          value: "$(params.gitops_git_revision)"
-        - name: deleteExisting
-          value: "true"
     - name: dev-update-image
       taskRef:
         name: update-image
+        kind: Task
       runAfter:
         - clone-gitops-manifests
+        - tag-dev-image
       params:
         - name: git_revision
           value: "$(params.gitops_git_revision)"
         - name: path
-          value: clusters/$(params.cluster)/overlays/dev
+          value: components/apps/client/overlays/$(params.cluster)
         - name: image
           value: "$(params.image_dest_url)"
         - name: image_tag
@@ -221,15 +134,12 @@ spec:
           workspace: gitops-manifests
     - name: dev-gitops-deploy
       taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/argocd-sync-and-wait/1.0/argocd-sync-and-wait.yaml
-        resolver: git
+        kind: ClusterTask
+        name: argocd-task-sync-and-wait
       runAfter:
         - dev-update-image
       params:
-        - name: application_name
+        - name: application-name
           value: product-catalog-dev
         - name: revision
           value: $(params.gitops_git_revision)
@@ -237,7 +147,7 @@ spec:
           value: client
         - name: namespace
           value: product-catalog-dev
-        - name: image_tag
+        - name: image-tag
           value: $(tasks.generate-id.results.tag_id)
     - name: tag-test-image
       taskRef:
@@ -255,6 +165,7 @@ spec:
     - name: test-update-image
       taskRef:
         name: update-image
+        kind: Task
       runAfter:
         - tag-test-image
       params:
@@ -271,15 +182,12 @@ spec:
           workspace: gitops-manifests
     - name: test-gitops-deploy
       taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/argocd-sync-and-wait/1.0/argocd-sync-and-wait.yaml
-        resolver: git
+        kind: ClusterTask
+        name: argocd-task-sync-and-wait
       runAfter:
         - test-update-image
       params:
-        - name: application_name
+        - name: application-name
           value: product-catalog-test
         - name: revision
           value: $(params.gitops_git_revision)
@@ -289,118 +197,3 @@ spec:
           value: product-catalog-test
         - name: image_tag
           value: $(tasks.generate-id.results.tag_id)
-    - name: notify-build-complete
-      taskRef:
-        name: send-to-webhook-slack
-        kind: Task
-      runAfter:
-        - test-gitops-deploy
-        - notify-on-scan-fail
-      params:
-        - name: console_message
-          value: |-
-            Client Build $(tasks.generate-id.results.tag_id) Completed
-
-            The build of image $(params.image_dest_url):$(tasks.generate-id.results.tag_id) has been completed
-
-            * Quay Image: https://$(params.image_dest_url):$(tasks.generate-id.results.tag_id)
-            * ACS Scan: https://$(tasks.variables.results.acs_central_endpoint)/main/vulnerability-management/images/$(tasks.build-image.results.IMAGE_DIGEST)
-            * SonarQube Results: https://$(params.sonarqube_host)/dashboard?id=product-catalog-client
-        - name: message_type
-          value: raw
-        - name: message
-          value: |-
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "Client Pipeline Complete",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Client pipeline for image $(tasks.generate-id.results.tag_id) has completed"
-                  }
-                },
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Pipeline Results*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "* <$(params.image_dest_url):$(tasks.generate-id.results.tag_id)|Quay Image>\n* <https://$(tasks.variables.results.acs_central_endpoint)/main/vulnerability-management/images/$(tasks.build-image.results.IMAGE_DIGEST)|ACS Scan>\n* <https://$(params.sonarqube_host)/dashboard?id=product-catalog-client|SonarQube>"
-                  }
-                },
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "To push this specific release to production, use the button below to create a new pull request to be approved."
-                  }
-                },
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "actions",
-                  "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Create Release Pull Request",
-                        "emoji": true
-                      },
-                      "value": "client,$(params.image_dest_url),$(tasks.generate-id.results.tag_id),$(params.cluster)",
-                    }
-                  ]
-                }
-              ]
-            }
-      workspaces:
-        - name: slack-secret
-          workspace: slack-secret
-  finally:
-    - name: release-lease
-      taskRef:
-        kind: Task
-        params:
-          - name: pathInRepo
-            value: task/release-lease/1.0/release-lease.yaml
-        resolver: git
-      params:
-        - name: lease-name
-          value: "$(context.pipeline.name)"
-    - name: notify-on-fail
-      taskRef:
-        name: send-to-webhook-slack
-        kind: Task
-      when:
-        - input: $(tasks.status)
-          operator: in
-          values: ["Failed"]
-        - input: "$(workspaces.slack-secret.bound)"
-          operator: in
-          values: ["true"]
-      params:
-        - name: message
-          value: "Some tasks in the $(context.pipeline.name) have failed in pipelinerun $(context.pipelinerun.name) failed, please investigate"
-      workspaces:
-        - name: slack-secret
-          workspace: slack-secret

@@ -3,18 +3,15 @@ kind: Kustomization
 
 namespace: product-catalog-cicd
 
-bases:
+resources:
 - workspace-template-cm.yaml
 - gitops-network-policy.yaml
-- docker-external-secret.yaml
-- github-external-secret.yaml
-- slack-deployments-webhook-external-secret.yaml
-- ../../../components/apps/slack-message-handler/base
+- github-sealed-secret.yaml
 - ../../../components/tekton/tasks/base
 - ../../../components/tekton/pipelines/client/base
 - ../../../components/tekton/pipelines/server/base
 - ../../../components/tekton/pipelines/push-prod-pr/base
 - ../../../components/tekton/triggers/base
 - setup-local-credentials-job.yaml
-- acs-external-secret.yaml
 - prod-network-policy.yaml
+- dockerconfig-sealed-secret.yaml

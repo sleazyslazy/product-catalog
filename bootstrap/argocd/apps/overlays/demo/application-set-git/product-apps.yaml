@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+    name: product-catalog
+    namespace: application-gitops
+spec:
+    goTemplate: true
+    goTemplateOptions: ["missingkey=error"]
+    generators:
+        - git:
+            repoURL: https://github.com/sleazyslazy/product-catalog.git
+            revision: main
+            directories:
+                - path: components/apps/**
+                  recursive: true
+    template:
+        metadata:
+            name: '{path.basename}}'
+        spec:
+            project: "apps-product-catalog"
+            source: 
+                repoURL: https://github.com/sleazyslazy/product-catalog.git
+                targetRevision: main
+                path: '{{.path.path}}'
+            destination:
+                server: https://kubernetes.default.svc
+                namespace: product-catalog-{index .path 2}
+            syncPolicy:
+                automated:
+                    prune: true
+                syncOptions:
+                    - CreateNamespace=true
+                managedNamespaceMetadata:
+                    labels:
+                        argocd.argoproj.io/managed-by: application-gitops  

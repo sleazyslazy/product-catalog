@@ -7,7 +7,7 @@ spec:
   - name: source
   params:
   - name: SONAR_SERVER_URL
-    default: "http://sonarqube.dev-tools:9000"
+    default: "http://sonarqube.sonarqube.svc.cluster.local:9000"
     description: The location of sonarqube, passed as an environment variable SONAR_SERVER_URL
   steps:
     - name: quality

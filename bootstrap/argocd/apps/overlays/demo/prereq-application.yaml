@@ -1,0 +1,21 @@
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-tools
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: application-gitops
+  project: default
+  source:
+    path: bootstrap/prereq
+    repoURL: https://github.com/sleazyslazy/product-catalog
+    targetRevision: main
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

@@ -1,0 +1,10 @@
+resources:
+  - ../../base
+
+images:
+- name: quay.io/suchugh/product-catalog/client
+  newName: quay.io/suchugh/product-catalog/client
+  newTag: b8a2b2a-4074585724
+- name: quay.io/suchugh/product-catalog/server
+  newName: quay.io/suchugh/product-catalog/server
+  newTag: 7f192d4-1427400123  

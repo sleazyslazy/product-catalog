@@ -5,15 +5,13 @@ metadata:
 spec:
   workspaces:
     - name: gitops-manifests
-    - name: acs-central
-      optional: true
   params:
     - name: git_revision
       type: string
       default: main
     - name: git_url
       type: string
-      default: https://github.com/gnunn-gitops/product-catalog
+      default: https://github.com/sleazyslazy/product-catalog
     - name: git_source_url
       description: The URL of the repo containing the source code for the application, used to construct a link for code changes
     - name: image_dest_url
@@ -31,14 +29,8 @@ spec:
     - name: sonarqube_host
       type: string
       description: Hostname for sonarqube
-      default: sonarqube-dev-tools.apps.hub.ocplab.com
+      default: sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
   tasks:
-    - name: variables
-      taskRef:
-        name: variables-from-k8s
-      workspaces:
-        - name: acs-central
-          workspace: acs-central
     - name: get-image-digest
       taskRef:
         kind: Task
@@ -46,8 +38,6 @@ spec:
           - name: pathInRepo
             value: task/image-tag-to-digest/1.0/image-tag-to-digest.yaml
         resolver: git
-      runAfter:
-        - variables
       params:
         - name: image_dest_url
           value: $(params.image_dest_url)
@@ -133,7 +123,6 @@ spec:
             ## Security Checklist
 
             - [ ] [Quay Image Vulnerabilities](https://$(params.image_dest_url):$(params.image_dest_tag))
-            - [ ] [Advanced Cluster Security Image Vulnerabilities and Policies](https://$(tasks.variables.results.acs_central_endpoint)/main/vulnerability-management/images/$(tasks.get-image-digest.results.image_digest))
             - [ ] [Sonarqube Results](https://$(params.sonarqube_host)/dashboard?id=product-catalog-$(params.app))
 
             ## Code Changes

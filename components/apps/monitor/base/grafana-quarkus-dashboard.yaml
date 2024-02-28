@@ -6,4 +6,4 @@ metadata:
     app: grafana
 spec:
   customFolderName: product-catalog
-  url: https://raw.githubusercontent.com/gnunn-gitops/product-catalog/main/components/apps/monitor/base/quarkus-dashboard.json
+  url: https://raw.githubusercontent.com/sleazyslazy/product-catalog/main/components/apps/monitor/base/quarkus-dashboard.json

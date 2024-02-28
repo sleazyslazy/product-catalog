@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sonarqube
+  labels:
+    gitops.openshift.io/controllerNamespace: application-gitops
+spec:
+  destination:
+    namespace: sonarqube
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    helm:
+      parameters:
+      - name: sonarqube.image
+        value: quay.io/redhat-gpte/sonarqube:7.7
+      - name: sonarqube.adminPassword
+        value: MjY1ODQ2
+      - name: sonarqube.namespace
+        value: sonarqube
+    path: charts/sonarqube
+    repoURL: https://github.com/sumiranchugh/agnosticg
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
+    managedNamespaceMetadata:
+        labels:  
+          argocd.argoproj.io/managed-by: application-gitops

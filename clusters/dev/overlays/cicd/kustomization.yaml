@@ -1,0 +1,3 @@
+resources:
+- ../../../../environments/overlays/cicd
+- pipeline-rolebinding.yaml
