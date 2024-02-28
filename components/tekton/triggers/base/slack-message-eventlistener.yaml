@@ -3,6 +3,8 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: slack-message
+  annotations:
+    tekton.dev/payload-validation: "false"
 spec:
   serviceAccountName: pipeline
   triggers:

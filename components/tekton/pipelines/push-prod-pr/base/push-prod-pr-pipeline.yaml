@@ -3,93 +3,90 @@ kind: Pipeline
 metadata:
   name: push-prod-pr
 spec:
-  workspaces:
-    - name: gitops-manifests
   params:
-    - name: git_revision
+    - default: main
+      name: git_revision
       type: string
-      default: main
-    - name: git_url
+    - default: 'https://github.com/sleazyslazy/product-catalog'
+      name: git_url
       type: string
-      default: https://github.com/sleazyslazy/product-catalog
-    - name: git_source_url
-      description: The URL of the repo containing the source code for the application, used to construct a link for code changes
-    - name: image_dest_url
+    - description: 'The URL of the repo containing the source code for the application, used to construct a link for code changes'
+      name: git_source_url
       type: string
-      description: External registry location of image to push without tag
-    - name: image_dest_tag
+    - description: External registry location of image to push without tag
+      name: image_dest_url
       type: string
-      description: Tag of image to push to production
-    - name: cluster
+    - description: Tag of image to push to production
+      name: image_dest_tag
       type: string
-      description: Cluster to push to
-    - name: app
+    - description: Cluster to push to
+      name: cluster
       type: string
-      description: Either 'server' or 'client'
-    - name: sonarqube_host
+    - description: Either 'server' or 'client'
+      name: app
       type: string
+    - default: sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
       description: Hostname for sonarqube
-      default: sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
+      name: sonarqube_host
+      type: string
   tasks:
     - name: get-image-digest
-      taskRef:
-        kind: Task
-        name: image-tag-to-digest
       params:
         - name: image_dest_url
           value: $(params.image_dest_url)
         - name: image_dest_tag
           value: $(params.image_dest_tag)
-    - name: clone
       taskRef:
-        name: git-clone
-        kind: ClusterTask
+        kind: Task
+        name: image-tag-to-digest
+    - name: clone
+      params:
+        - name: url
+          value: $(params.git_url)
+        - name: revision
+          value: $(params.git_revision)
+        - name: deleteExisting
+          value: 'true'
       runAfter:
         - get-image-digest
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
       workspaces:
         - name: output
           workspace: gitops-manifests
-      params:
-        - name: url
-          value: "$(params.git_url)"
-        - name: revision
-          value: "$(params.git_revision)"
-        - name: deleteExisting
-          value: "true"
     - name: branch
-      taskRef:
-        name: git
-      runAfter:
-        - clone
-      workspaces:
-        - name: source
-          workspace: gitops-manifests
       params:
         - name: commands
           value: |
             git checkout -b push-$(params.image_dest_tag)
-    - name: update-image
-      taskRef:
-        name: update-image
       runAfter:
-        - branch
+        - clone
+      taskRef:
+        kind: Task
+        name: git
+      workspaces:
+        - name: source
+          workspace: gitops-manifests
+    - name: update-image
       params:
         - name: git_revision
-          value: "push-$(params.image_dest_tag)"
+          value: push-$(params.image_dest_tag)
         - name: path
           value: components/apps/server/overlays/prod
         - name: image
-          value: "$(params.image_dest_url)"
+          value: $(params.image_dest_url)
         - name: image_tag
           value: $(params.image_dest_tag)
+      runAfter:
+        - branch
+      taskRef:
+        kind: Task
+        name: update-image
       workspaces:
         - name: gitops-manifests
           workspace: gitops-manifests
     - name: create-commit-list
-      taskRef:
-        name: create-commit-list
-      runAfter:
-        - update-image
       params:
         - name: deployment
           value: $(params.app)
@@ -99,19 +96,12 @@ spec:
           value: $(params.image_dest_tag)
         - name: git_source_url
           value: $(params.git_source_url)
-    - name: prod-pr-deploy
-      taskRef:
-        name: task-create-pr
-        kind: Task
       runAfter:
-        - create-commit-list
-      workspaces:
-        - name: source
-          workspace: gitops-manifests
-      when:
-        - input: "$(tasks.update-image.results.image_updated)"
-          operator: in
-          values: ["true"]
+        - update-image
+      taskRef:
+        kind: Task
+        name: create-commit-list
+    - name: prod-pr-deploy
       params:
         - name: title
           value: Update $(params.app) image to $(params.image_dest_tag)
@@ -124,3 +114,20 @@ spec:
 
             ## Code Changes
             - [ ] $(tasks.create-commit-list.results.commit-list-message)
+      runAfter:
+        - create-commit-list
+      taskRef:
+        kind: Task
+        name: task-create-pr
+      when:
+        - input: $(tasks.update-image.results.image_updated)
+          operator: in
+          values:
+            - 'true'
+      workspaces:
+        - name: source
+          workspace: gitops-manifests
+  workspaces:
+    - name: gitops-manifests
+      persistentVolumeClaim:
+        claimName: gitops-manifests
