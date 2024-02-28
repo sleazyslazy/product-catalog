@@ -15,3 +15,5 @@ resources:
 - setup-local-credentials-job.yaml
 - prod-network-policy.yaml
 - dockerconfig-sealed-secret.yaml
+- argocd-env-configmap.yaml
+- argocd-env-secret-sealed.yaml

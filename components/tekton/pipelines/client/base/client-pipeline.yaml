@@ -149,6 +149,11 @@ spec:
           value: product-catalog-dev
         - name: image-tag
           value: $(tasks.generate-id.results.tag_id)
+        - name: flags
+          value: --insecure
+        - name: argocd-version
+          default: v2.9.5  
+        - name:     
     - name: tag-test-image
       taskRef:
         name: push-image
