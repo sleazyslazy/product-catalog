@@ -12,3 +12,21 @@ spec:
           ref: slack-message
       template:
         ref: slack-message
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: slack-webhook
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: slack-message
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: "Service"
+    name: el-slack-message
+    weight: 100
+  tls:
+    termination: edge
