@@ -186,6 +186,10 @@ spec:
           value: product-catalog-dev
         - name: image_tag
           value: "$(tasks.generate-id.results.tag_id)"
+        - name: flags
+          value: "--insecure"
+        - name: argocd-version
+          value: v2.9.5    
     - name: dev-test
       taskRef:
         name: newman
@@ -247,6 +251,10 @@ spec:
           value: product-catalog-test
         - name: image_tag
           value: "$(tasks.generate-id.results.tag_id)"
+        - name: flags
+          value: "--insecure"
+        - name: argocd-version
+          value: v2.9.5      
     - name: test-test
       taskRef:
         name: newman
