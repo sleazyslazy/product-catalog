@@ -175,12 +175,12 @@ spec:
     - name: dev-gitops-deploy
       taskRef:
         kind: ClusterTask
-        name: argocd-sync-and-wait
+        name: argocd-task-sync-and-wait
       runAfter:
         - dev-update-image
       params:
         - name: application_name
-          value: apps-product-catalog/server
+          value: server-dev
         - name: revision
           value: $(params.gitops_git_revision)
         - name: deployment
@@ -236,12 +236,12 @@ spec:
     - name: test-gitops-deploy
       taskRef:
         kind: ClusterTask
-        name: argocd-sync-and-wait
+        name: argocd-task-sync-and-wait
       runAfter:
         - test-update-image
       params:
         - name: application_name
-          value: product-catalog-gitops/product-catalog-test
+          value: server-test
         - name: revision
           value: $(params.gitops_git_revision)
         - name: deployment
