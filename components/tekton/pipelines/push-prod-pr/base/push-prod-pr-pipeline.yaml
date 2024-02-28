@@ -129,5 +129,3 @@ spec:
           workspace: gitops-manifests
   workspaces:
     - name: gitops-manifests
-      persistentVolumeClaim:
-        claimName: gitops-manifests
