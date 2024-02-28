@@ -4,7 +4,7 @@ resources:
 images:
 - name: quay.io/suchugh/product-catalog
   newName: quay.io/suchugh/product-catalog
-  newTag: 64e8482-2cyqGi0zE6vrcVuVwKugCbee4uL
+  newTag: 64e8482-2cyt46srFNAi28CSNX0aDANI9Ue
 - name: quay.io/suchugh/product-catalog/client
   newName: quay.io/suchugh/product-catalog/client
   newTag: b8a2b2a-4074585724
