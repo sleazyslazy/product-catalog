@@ -34,10 +34,7 @@ spec:
     - name: get-image-digest
       taskRef:
         kind: Task
-        params:
-          - name: pathInRepo
-            value: task/image-tag-to-digest/1.0/image-tag-to-digest.yaml
-        resolver: git
+        name: image-tag-to-digest
       params:
         - name: image_dest_url
           value: $(params.image_dest_url)
@@ -80,7 +77,7 @@ spec:
         - name: git_revision
           value: "push-$(params.image_dest_tag)"
         - name: path
-          value: clusters/$(params.cluster)/overlays/prod
+          value: components/apps/server/overlays/prod
         - name: image
           value: "$(params.image_dest_url)"
         - name: image_tag
