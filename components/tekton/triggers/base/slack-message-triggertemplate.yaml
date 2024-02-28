@@ -54,6 +54,11 @@ spec:
                 resources:
                   requests:
                     storage: 5Gi
-          - name: acs-central
-            secret:
-              secretName: roxsecrets
+          - name: git-source
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 5Gi
