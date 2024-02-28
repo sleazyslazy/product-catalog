@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: product-catalog-prod
+  labels:
+    gitops.openshift.io/controllerNamespace: gitops
+spec:
+  destination:
+    namespace: product-catalog-prod
+    server: https://kubernetes.default.svc
+  project: apps-product-catalog-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
+    managedNamespaceMetadata:
+        labels:  
+          argocd.argoproj.io/managed-by: application-gitops
+  source:
+    path: clusters/demo/overlays/prod
+    repoURL: https://github.com/sleazyslazy/product-catalog
+    targetRevision: main

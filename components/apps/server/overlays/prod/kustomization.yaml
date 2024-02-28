@@ -1,8 +1,4 @@
 images:
-- name: quay.io/gnunn/client
-  newTag: latest
-- name: quay.io/gnunn/server
-  newName: quay.io/gnunn/server
+- name: quay.io/sumiranchugh/product-catalog/server
+  newName: quay.io/sumiranchugh/product-catalog/server
   newTag: f08be80-110331912
-resources:
-- ../../../../environments/overlays/prod
