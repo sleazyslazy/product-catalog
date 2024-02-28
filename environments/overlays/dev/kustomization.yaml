@@ -6,11 +6,6 @@ namespace: product-catalog-dev
 bases:
 - cicd-networkpolicy.yaml
 - ../../../components/apps/database/base
-- ../../../components/apps/client/base
-- ../../../components/apps/server/base
+- ../../../components/apps/client/overlays/dev
+- ../../../components/apps/server/overlays/dev
 
-images:
-- name: quay.io/gnunn/client
-  newTag: dev
-- name: quay.io/gnunn/server
-  newTag: dev

@@ -11,13 +11,13 @@ spec:
             repoURL: https://github.com/sleazyslazy/product-catalog.git
             revision: main
             directories:
-                - path: components/apps/**/overlays/**
+                - path: cluster/demo/overlays/**
                   recursive: true
-                - path: components/apps/**/overlays/prod
+                - path: cluster/demo/overlays/prod
                   exclude: true  
     template:
         metadata:
-            name: '{{index .path.segments 2}}-{{index .path.segments 4}}'
+            name: 'product-catalog-{{index .path.segments 3}}'
         spec:
             project: "apps-product-catalog"
             source: 
@@ -26,7 +26,7 @@ spec:
                 path: '{{.path.path}}'
             destination:
                 server: https://kubernetes.default.svc
-                namespace: product-catalog-{{index .path.segments 4}}
+                namespace: product-catalog-{{index .path.segments 3}}
             syncPolicy:
                 automated:
                     prune: true
