@@ -210,7 +210,7 @@ spec:
         kind: Task
       runAfter:
         # - dev-test
-        - dev-gitops-deploy
+        - dev-update-image
       params:
         - name: src_image
           value: $(params.image_dest_url)@$(tasks.build-image.results.IMAGE_DIGEST)
