@@ -5,6 +5,7 @@ metadata:
 spec:
   workspaces:
   - name: gitops-manifests
+  - name: basic-auth
   params:
     - name: git_revision
       type: string

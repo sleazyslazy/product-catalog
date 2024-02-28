@@ -10,7 +10,7 @@ spec:
     namespace: application-gitops
   project: default
   source:
-    path: bootstrap/prereq
+    path: bootstrap/argocd/apps/overlays/demo/prereq
     repoURL: https://github.com/sleazyslazy/product-catalog
     targetRevision: main
     directory:
