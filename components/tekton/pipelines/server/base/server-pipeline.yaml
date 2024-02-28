@@ -187,7 +187,7 @@ spec:
         - name: image_tag
           value: "$(tasks.generate-id.results.tag_id)"
         - name: flags
-          value: "--insecure"
+          value: "--insecure --apply-out-of-sync-only --sync --timeout 180s"
         - name: argocd-version
           value: v2.9.5    
     - name: dev-test
