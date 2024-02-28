@@ -9,6 +9,4 @@ images:
   newName: quay.io/suchugh/product-catalog/server
   newTag: 7f192d4-1427400123
 resources:
-- ../../../../environments/overlays/test
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
+- ../../../../../environments/overlays/test
