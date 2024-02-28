@@ -152,8 +152,7 @@ spec:
         - name: flags
           value: "--insecure"
         - name: argocd-version
-          default: v2.9.5  
-        - name:     
+          value: v2.9.5  
     - name: tag-test-image
       taskRef:
         name: push-image
