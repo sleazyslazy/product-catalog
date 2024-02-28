@@ -3,7 +3,7 @@ kind: Kustomization
 
 namespace: product-catalog-dev
 
-bases:
+resources:
 - cicd-networkpolicy.yaml
 - ../../../components/apps/database/base
 - ../../../components/apps/client/overlays/dev
