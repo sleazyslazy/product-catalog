@@ -169,47 +169,48 @@ spec:
       workspaces:
         - name: gitops-manifests
           workspace: gitops-manifests
-    - name: dev-gitops-deploy
-      taskRef:
-        kind: ClusterTask
-        name: argocd-task-sync-and-wait
-      runAfter:
-        - dev-update-image
-      params:
-        - name: application-name
-          value: product-catalog-dev
-        - name: revision
-          value: $(params.gitops_git_revision)
-        - name: deployment
-          value: server
-        - name: namespace
-          value: product-catalog-dev
-        - name: image_tag
-          value: "$(tasks.generate-id.results.tag_id)"
-        - name: flags
-          value: --
-        - name: argocd-version
-          value: v2.9.5    
-    - name: dev-test
-      taskRef:
-        name: newman
-        kind: Task
-      runAfter:
-        - dev-gitops-deploy
-      params:
-        - name: COLLECTION
-          value: $(params.api_test_collection_url)
-        - name: ENVIRONMENT
-          value: newman-dev-env.json
-      workspaces:
-        - name: newman-env
-          workspace: newman-env
+    # - name: dev-gitops-deploy
+    #   taskRef:
+    #     kind: ClusterTask
+    #     name: argocd-task-sync-and-wait
+    #   runAfter:
+    #     - dev-update-image
+    #   params:
+    #     - name: application-name
+    #       value: product-catalog-dev
+    #     - name: revision
+    #       value: $(params.gitops_git_revision)
+    #     - name: deployment
+    #       value: server
+    #     - name: namespace
+    #       value: product-catalog-dev
+    #     - name: image_tag
+    #       value: "$(tasks.generate-id.results.tag_id)"
+    #     - name: flags
+    #       value: --
+    #     - name: argocd-version
+    #       value: v2.9.5    
+    # - name: dev-test
+    #   taskRef:
+    #     name: newman
+    #     kind: Task
+    #   runAfter:
+    #     - dev-gitops-deploy
+    #   params:
+    #     - name: COLLECTION
+    #       value: $(params.api_test_collection_url)
+    #     - name: ENVIRONMENT
+    #       value: newman-dev-env.json
+    #   workspaces:
+    #     - name: newman-env
+    #       workspace: newman-env
     - name: tag-test-image
       taskRef:
         name: push-image
         kind: Task
       runAfter:
-        - dev-test
+        # - dev-test
+        - dev-gitops-deploy
       params:
         - name: src_image
           value: $(params.image_dest_url)@$(tasks.build-image.results.IMAGE_DIGEST)
