@@ -9,9 +9,14 @@
 		},
 		{
 			"key": "scheme",
-			"value": "https",
+			"value": "http",
 			"enabled": true
-		}
+		},
+		 {
+			"key": "insecure",
+			"value": "true",
+			"enabled": true
+		 }
 	],
 	"_postman_variable_scope": "environment"
 }
