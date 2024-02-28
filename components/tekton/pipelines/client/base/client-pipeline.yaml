@@ -176,7 +176,7 @@ spec:
         - name: git_revision
           value: "$(params.gitops_git_revision)"
         - name: path
-          value: clusters/$(params.cluster)/overlays/test
+          value: components/apps/client/overlays/test
         - name: image
           value: "$(params.image_dest_url)"
         - name: image_tag
@@ -192,7 +192,7 @@ spec:
         - test-update-image
       params:
         - name: application-name
-          value: product-catalog-test
+          value: client-test
         - name: revision
           value: $(params.gitops_git_revision)
         - name: deployment
