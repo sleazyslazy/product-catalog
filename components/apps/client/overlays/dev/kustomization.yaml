@@ -4,6 +4,6 @@ resources:
 images:
 - name: quay.io/suchugh/product-catalog/client
   newName: quay.io/suchugh/product-catalog/client
-  newTag: 11d0147-2d049mn1pWeQMryNG4AaFEXkFnd
+  newTag: 03c38a9-2d0IqKq1RGhNmP08oVRMH6TEOex
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
