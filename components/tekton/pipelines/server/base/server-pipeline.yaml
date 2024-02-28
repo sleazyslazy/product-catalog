@@ -8,10 +8,6 @@ spec:
     - name: maven-settings
     - name: newman-env
     - name: gitops-manifests
-    - name: slack-secret
-      optional: true
-    - name: acs-central
-      optional: true
   params:
     - name: source_git_revision
       type: string
@@ -164,7 +160,7 @@ spec:
         - name: git_revision
           value: "$(params.gitops_git_revision)"
         - name: path
-          value: clusters/$(params.cluster)/overlays/dev
+          value: components/apps/server/overlays/dev
         - name: image
           value: "$(params.image_dest_url)"
         - name: image_tag
@@ -225,7 +221,7 @@ spec:
         - name: git_revision
           value: "$(params.gitops_git_revision)"
         - name: path
-          value: clusters/$(params.cluster)/overlays/test
+          value: components/apps/server/overlays/test
         - name: image
           value: "$(params.image_dest_url)"
         - name: image_tag
