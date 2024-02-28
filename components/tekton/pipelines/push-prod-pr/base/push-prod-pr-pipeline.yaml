@@ -73,7 +73,7 @@ spec:
         - name: git_revision
           value: push-$(params.image_dest_tag)
         - name: path
-          value: components/apps/server/overlays/prod
+          value: components/apps/$(params.app)/overlays/prod
         - name: image
           value: $(params.image_dest_url)
         - name: image_tag

@@ -140,7 +140,7 @@ spec:
         - dev-update-image
       params:
         - name: application-name
-          value: client-dev
+          value: product-catalog-dev
         - name: revision
           value: $(params.gitops_git_revision)
         - name: deployment
@@ -192,7 +192,7 @@ spec:
         - test-update-image
       params:
         - name: application-name
-          value: client-test
+          value: product-catalog-test
         - name: revision
           value: $(params.gitops_git_revision)
         - name: deployment
