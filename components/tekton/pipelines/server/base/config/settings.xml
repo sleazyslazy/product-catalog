@@ -40,7 +40,7 @@
           <id>sonar</id>
           <properties>
             <sonar.host.url>
-              https://sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
+              http://sonarqube.sonarqube.svc.cluster.local:9000/
             </sonar.host.url>
             <sonar.login>admin</sonar.login>
             <sonar.password>R@dhat1234</sonar.password>
