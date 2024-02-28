@@ -1,6 +1,9 @@
 images:
 - name: quay.io/suchugh/product-catalog/server
-  newTag: latest
+  newName: quay.io/suchugh/product-catalog/server
+  newTag: 987863e-2d0JSlMdVVwWswJhNMtcxQNrVjo
 
 resources:
 - ../../base
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
