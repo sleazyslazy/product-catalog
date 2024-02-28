@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: quay.io/suchugh/product-catalog/server
   newName: quay.io/suchugh/product-catalog/server
-  newTag: 3962587-2d05YUnDrN5ZF80L7ZuTMXmRh4c
+  newTag: 3962587-2d062F39ggPhAY5PL0iF3FSlE9c
