@@ -29,3 +29,4 @@ resources:
 - task-update-image.yaml
 - task-variables.yaml
 - task-create-commit-list.yaml
+- task-image-tag-to-digest.yaml
