@@ -10,19 +10,20 @@ spec:
     - default: 'https://github.com/sleazyslazy/product-catalog'
       name: git_url
       type: string
-    - description: 'The URL of the repo containing the source code for the application, used to construct a link for code changes'
+    - default: 'https://github.com/sleazyslazy/product-catalog-client'
+      description: 'The URL of the repo containing the source code for the application, used to construct a link for code changes'
       name: git_source_url
       type: string
-    - description: External registry location of image to push without tag
+    - default: quay.io/suchugh/product-catalog
+      description: External registry location of image to push without tag
       name: image_dest_url
       type: string
-    - description: Tag of image to push to production
+    - default: test
+      description: Tag of image to push to production
       name: image_dest_tag
       type: string
-    - description: Cluster to push to
-      name: cluster
-      type: string
-    - description: Either 'server' or 'client'
+    - default: client
+      description: Either 'server' or 'client'
       name: app
       type: string
     - default: sonarqube-sonarqube.apps.cluster-26j82.dynamic.redhatworkshops.io
@@ -33,7 +34,7 @@ spec:
     - name: get-image-digest
       params:
         - name: image_dest_url
-          value: $(params.image_dest_url)
+          value: $(params.image_dest_url)/$(params.app)
         - name: image_dest_tag
           value: $(params.image_dest_tag)
       taskRef:
@@ -75,7 +76,7 @@ spec:
         - name: path
           value: components/apps/$(params.app)/overlays/prod
         - name: image
-          value: $(params.image_dest_url)
+          value: $(params.image_dest_url)/$(params.app)
         - name: image_tag
           value: $(params.image_dest_tag)
       runAfter:
@@ -109,7 +110,7 @@ spec:
           value: |-
             ## Security Checklist
 
-            - [ ] [Quay Image Vulnerabilities](https://$(params.image_dest_url):$(params.image_dest_tag))
+            - [ ] [Quay Image Vulnerabilities](https://$(params.image_dest_url)/$(params.app):$(params.image_dest_tag))
             - [ ] [Sonarqube Results](https://$(params.sonarqube_host)/dashboard?id=product-catalog-$(params.app))
 
             ## Code Changes
