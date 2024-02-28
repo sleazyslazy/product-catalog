@@ -1,7 +1,7 @@
 images:
 - name: quay.io/suchugh/product-catalog/server
   newName: quay.io/suchugh/product-catalog/server
-  newTag: 987863e-2d0JSlMdVVwWswJhNMtcxQNrVjo
+  newTag: 987863e-2d0RDn2Pv2gRpyOD4K0umJYhxhq
 
 resources:
 - ../../base
