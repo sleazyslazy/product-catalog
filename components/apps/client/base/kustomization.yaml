@@ -12,3 +12,4 @@ resources:
   - client-service.yaml
   - client-route.yaml
   - client-deployment.yaml
+  - sample-secret-sealed.yaml
